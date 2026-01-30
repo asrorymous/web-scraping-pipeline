@@ -1,52 +1,44 @@
-# Web Scraping Pipeline — Playwright + Node.js + PostgreSQL
+# 🚀 Automated Web Scraping & Asset Pipeline
 
-A modular web scraping pipeline built with Node.js and Playwright.  
-This project is created as a structured learning exercise to practice real-world scraping workflow, data normalization, database storage, and CSV export.
+A modular data extraction system built with **Node.js**, **Playwright**, and **PostgreSQL**. This project focuses on a complete pipeline flow: from paginated scraping to structured database storage and intelligent image management.
 
----
+## 🌟 Core Functionalities
 
-## 🚀 Features
+- **Paginated Scraping:** Automated data extraction across multiple pages using Playwright.
+- **Database Persistence:** Reliable data storage in PostgreSQL with duplicate handling.
+- **Smart Asset Sync:** - Downloads product images directly from stored database URLs. - **Efficiency-first:** Checks for existing files before downloading to optimize local storage and bandwidth.
+  ...
 
-- Scrape product data from a paginated website
-- Extract structured fields (title and price)
-- Normalize numeric price values
-- Store results into PostgreSQL
-- Prevent duplicate inserts using UNIQUE constraint + ON CONFLICT
-- Export stored data to CSV
-- Modular folder architecture
-- Environment-based configuration using dotenv
+## 🌟 Key Features
 
----
+- **Automated Scraping:** Handles paginated product extraction using Playwright.
+- **Data Normalization:** Converts raw web strings into clean numeric values for financial accuracy.
+- **Relational Storage:** Stores results in PostgreSQL with a focus on data integrity.
+- **Smart Asset Sync:** - Downloads product images based on database records.
+  - **Idempotent Processing:** Automatically skips existing files to optimize bandwidth and speed.
+  - Filename sanitization for cross-platform compatibility.
+- **Duplicate Prevention:** Uses `UNIQUE` constraints and `ON CONFLICT` logic for repeatable execution.
+- **CSV Export:** Generates structured reports for downstream analysis.
 
 ## ⚙️ Tech Stack
 
-- Node.js
-- Playwright
-- PostgreSQL
-- pg (node-postgres)
-- dotenv
-
----
+- **Runtime:** Node.js
+- **Automation:** Playwright (Chromium)
+- **Database:** PostgreSQL
+- **Environment:** Dotenvx / Dotenv
 
 ## 📁 Project Structure
 
-```
+```text
 src/
-  config/
-    db.js
-  scraper/
-    booksScraper.js
-  exporter/
-    csvExporter.js
-  utils/
-    delay.js
-  index.js
-
+  ├── config/     # Database connection & env config
+  ├── scraper/    # Playwright extraction logic
+  ├── services/   # Image processing & Smart Sync logic
+  ├── exporter/   # CSV generation service
+  ├── utils/      # Shared helpers (downloader, delay)
+  └── index.js    # Pipeline entry point
 output/
-.env
-.gitignore
-package.json
-README.md
+  └── images/     # Local image repository
 ```
 
 ---
@@ -54,16 +46,13 @@ README.md
 ## 🗄️ Database Schema
 
 ```sql
-CREATE DATABASE scraping_pipeline;
-
-\c scraping_pipeline
-
 CREATE TABLE products (
   id SERIAL PRIMARY KEY,
   name TEXT UNIQUE,
   price_text TEXT,
   price_value NUMERIC,
   source TEXT,
+  image_url TEXT,
   scraped_at TIMESTAMP DEFAULT NOW()
 );
 ```
@@ -74,7 +63,7 @@ CREATE TABLE products (
 
 Create a `.env` file in the project root:
 
-```
+```ini
 DB_USER=postgres
 DB_PASS=your_password
 DB_NAME=scraping_pipeline
@@ -92,62 +81,26 @@ npx playwright install
 
 ---
 
-## ▶️ Run Pipeline
+## 🧠 Data Pipeline Flow
 
-```bash
-node src/index.js
-```
-
-Pipeline flow:
-
-1. Launch browser with Playwright
-2. Scrape paginated product pages
-3. Normalize price values
-4. Insert into PostgreSQL
-5. Skip duplicates automatically
-6. Export to CSV (`output/results.csv`)
+1. `Extract`: Playwright navigates pages and scrapes product metadata (Title, Price, Image URL).
+2. `Persist`: Data is normalized and pushed to PostgreSQL, automatically skipping duplicates.
+3. `Sync`: Image service queries the DB and downloads missing assets to output/images/.
+4. `Export`: The final processed database state is exported to a clean CSV file.
 
 ---
 
-## 🧠 Data Integrity Strategy
-
-Duplicates are prevented using:
-
-- Database UNIQUE constraint on `products.name`
-- SQL safeguard:
-
-```sql
-ON CONFLICT (name) DO NOTHING
-```
-
-This allows the pipeline to be safely re-run without duplicating rows.
-
----
-
-## 📄 Output
-
-CSV file will be generated at:
+## 🛠️ Tech Stack
 
 ```
-output/results.csv
+Runtime: Node.js
+Automation: Playwright
+Database: PostgreSQL
+Environment: Dotenvx
 ```
 
-Format:
+## 🚀 Quick Start
 
-```
-Name | Price Text | Price Value | Source
-```
-
----
-
-## 📌 Notes
-
-This project focuses on:
-
-- modular scraping structure
-- clean data pipeline flow
-- safe database writes
-- repeatable execution
-- readable code organization
-
-Future improvements can include logging, retry strategies, configuration files, and automated tests.
+1. **Install:** `npm install && npx playwright install chromium`
+2. **Setup:** Create a `.env` file and ensure `output/images` folder exists.
+3. **Run:** `node src/index.js`
