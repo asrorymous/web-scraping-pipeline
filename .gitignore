@@ -4,3 +4,6 @@ output/
 *.csv
 *.log
 .DS_Store
+# Folder contekan pribadi
+notes/
+scratchpad/

@@ -13,6 +13,7 @@ async function scrapeBooks(page, dbClient, maxPage = 2) {
         data.push({
           title: item.querySelector("h3 a").getAttribute("title"),
           priceText: item.querySelector(".price_color").innerText,
+          imgUrl: item.querySelector(".thumbnail").getAttribute("src"),
         });
       });
       return data;
@@ -23,10 +24,10 @@ async function scrapeBooks(page, dbClient, maxPage = 2) {
 
       await dbClient.query(
         `INSERT INTO products
-   (name, price_text, price_value, source)
-   VALUES ($1,$2,$3,$4)
+   (name, price_text, price_value, source,image_url)
+   VALUES ($1,$2,$3,$4,$5)
    ON CONFLICT (name) DO NOTHING`,
-        [book.title, book.priceText, priceValue, "books.toscrape"],
+        [book.title, book.priceText, priceValue, "books.toscrape", book.imgUrl],
       );
     }
 
