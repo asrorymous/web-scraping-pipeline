@@ -1,106 +1,72 @@
-# 🚀 Automated Web Scraping & Asset Pipeline
+# 🏗️ Automated Data Ingestion & ETL Pipeline
 
-A modular data extraction system built with **Node.js**, **Playwright**, and **PostgreSQL**. This project focuses on a complete pipeline flow: from paginated scraping to structured database storage and intelligent image management.
+[![Node.js](https://img.shields.io/badge/Runtime-Node.js-green.svg)](https://nodejs.org/)
+[![PostgreSQL](https://img.shields.io/badge/Database-PostgreSQL-blue.svg)](https://www.postgresql.org/)
+[![Zod](https://img.shields.io/badge/Validation-Zod-purple.svg)](https://zod.dev/)
 
-## 🌟 Core Functionalities
+A professional-grade **ETL (Extract, Transform, Load)** pipeline designed for robust data collection and structural integrity. This system focuses on bridging the gap between unstructured external sources and highly-structured analytical storage.
 
-- **Paginated Scraping:** Automated data extraction across multiple pages using Playwright.
-- **Database Persistence:** Reliable data storage in PostgreSQL with duplicate handling.
-- **Smart Asset Sync:** - Downloads product images directly from stored database URLs. - **Efficiency-first:** Checks for existing files before downloading to optimize local storage and bandwidth.
-  ...
+## 🌟 The "ETL" Engineering Approach
 
-## 🌟 Key Features
+Unlike standard scrapers, this system is built as a **Data Pipeline**, emphasizing data quality and idempotent processing:
 
-- **Automated Scraping:** Handles paginated product extraction using Playwright.
-- **Data Normalization:** Converts raw web strings into clean numeric values for financial accuracy.
-- **Relational Storage:** Stores results in PostgreSQL with a focus on data integrity.
-- **Smart Asset Sync:** - Downloads product images based on database records.
-  - **Idempotent Processing:** Automatically skips existing files to optimize bandwidth and speed.
-  - Filename sanitization for cross-platform compatibility.
-- **Duplicate Prevention:** Uses `UNIQUE` constraints and `ON CONFLICT` logic for repeatable execution.
-- **CSV Export:** Generates structured reports for downstream analysis.
-
-## ⚙️ Tech Stack
-
-- **Runtime:** Node.js
-- **Automation:** Playwright (Chromium)
-- **Database:** PostgreSQL
-- **Environment:** Dotenvx / Dotenv
-
-## 📁 Project Structure
-
-```text
-src/
-  ├── config/     # Database connection & env config
-  ├── scraper/    # Playwright extraction logic
-  ├── services/   # Image processing & Smart Sync logic
-  ├── exporter/   # CSV generation service
-  ├── utils/      # Shared helpers (downloader, delay)
-  └── index.js    # Pipeline entry point
-output/
-  └── images/     # Local image repository
-```
-
----
-
-## 🗄️ Database Schema
-
-```sql
-CREATE TABLE products (
-  id SERIAL PRIMARY KEY,
-  name TEXT UNIQUE,
-  price_text TEXT,
-  price_value NUMERIC,
-  source TEXT,
-  image_url TEXT,
-  scraped_at TIMESTAMP DEFAULT NOW()
-);
-```
-
----
-
-## 🔐 Environment Variables
-
-Create a `.env` file in the project root:
-
-```ini
-DB_USER=postgres
-DB_PASS=your_password
-DB_NAME=scraping_pipeline
-DB_PORT=5432
-```
-
----
-
-## 📦 Installation
-
-```bash
-npm install
-npx playwright install
-```
-
----
-
-## 🧠 Data Pipeline Flow
-
-1. `Extract`: Playwright navigates pages and scrapes product metadata (Title, Price, Image URL).
-2. `Persist`: Data is normalized and pushed to PostgreSQL, automatically skipping duplicates.
-3. `Sync`: Image service queries the DB and downloads missing assets to output/images/.
-4. `Export`: The final processed database state is exported to a clean CSV file.
+- **Modular Extraction (E):** Uses an abstraction layer (Playwright) to ingest data from dynamic sources, mimicking human interaction for high-quality DOM-based extraction.
+- **Strict Transformation (T):** Implements **Schema-as-Code** with **Zod**. Every incoming data point is validated, sanitized, and normalized before it touches the persistence layer.
+- **Intelligent Loading (L):** Leverages PostgreSQL's `ON CONFLICT` (Upsert) logic for incremental ingestion, ensuring no duplicate records and high database efficiency.
+- **Automated Asset Synchronization:** A dedicated service for localizing external assets (images) with built-in deduplication to optimize storage bandwidth.
 
 ---
 
 ## 🛠️ Tech Stack
 
-```
-Runtime: Node.js
-Automation: Playwright
-Database: PostgreSQL
-Environment: Dotenvx
+- **Engine:** Node.js (Asynchronous Runtime)
+- **Ingestion:** Playwright (Headless Browser Automation)
+- **Validation:** Zod (Type-safe Schema Validation)
+- **Persistence:** PostgreSQL (Relational Database)
+- **Environment:** Dotenvx (Secure Configuration Management)
+
+---
+
+## 📂 System Architecture
+
+The project follows a modular architecture to ensure scalability and ease of maintenance:
+
+```text
+src/
+├── extractors/   # [E] Source-specific ingestion logic (e.g., Book catalogs)
+├── transformers/ # [T] Data cleansing, normalization, and Zod schema validation
+├── loaders/      # [L] Database persistence & File-system asset synchronization
+├── config/       # Connection pools and environment settings
+└── index.js      # The Pipeline Orchestrator
 ```
 
-## 🚀 Quick Start
+## 🧠 Data Flow & Integrity
 
-1. **Install:** `npm install && npx playwright install chromium`
-2. **Setup:** Create a `.env` file and ensure `output/images` folder exists.
-3. **Run:** `node src/index.js`
+**Ingest:** Raw data is pulled from external sources.
+**Validate:** The Transformer layer runs a Zod schema check. If a data point is corrupted or missing required fields, it is logged and filtered out to prevent "Dirty Data".
+**Normalize:** Raw currency strings are converted to Numeric types for financial accuracy.
+**Upsert:** Data is pushed to PostgreSQL. Existing records are updated; new records are inserted.
+**Sync:** Binary assets (images) are fetched only if they don't already exist in the local storage.
+
+## 🚀 Getting Started
+
+_Clone & Install:_
+
+```Bash
+npm install
+npx playwright install chromium
+```
+
+_Database Setup:_ Ensure PostgreSQL is running and update your .env file based on the provided configuration.
+
+_Execute Pipeline:_
+
+```Bash
+node src/index.js
+```
+
+## 🛡️ Reliability Features
+
+**Fault Tolerance:** The pipeline skips invalid records instead of crashing.
+**Idempotency:** Safe to run multiple times; the final state remains consistent.
+**Rate Limiting:** Built-in delays to respect source server resources.
