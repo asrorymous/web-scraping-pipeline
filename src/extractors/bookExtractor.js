@@ -1,11 +1,11 @@
 const { randomDelay } = require("../utils/delay");
 
-async function scrapeBooks(page, maxPage = 2) {
+async function extractBooks(page, maxPage = 2) {
   const allResults = []; // Ember besar buat nampung semua hasil
 
   for (let pageNum = 1; pageNum <= maxPage; pageNum++) {
     const url = `https://books.toscrape.com/catalogue/page-${pageNum}.html`;
-    console.log(`Scraping page ${pageNum}: ${url}`);
+    console.log(`Extraction page ${pageNum}: ${url}`);
 
     await page.goto(url);
 
@@ -29,4 +29,4 @@ async function scrapeBooks(page, maxPage = 2) {
   return allResults;
 }
 
-module.exports = { scrapeBooks };
+module.exports = { extractBooks };
